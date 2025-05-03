@@ -1,0 +1,10 @@
+{
+    "code-runner.executorMap": {
+        "c": "clang -arch arm64 -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include $fileName -L/opt/homebrew/opt/libomp/lib -lomp -o $fileNameWithoutExt && ./$fileNameWithoutExt < entrada2.txt"
+    },
+    "code-runner.runInTerminal": true,
+    "files.associations": {
+        "string.h": "c",
+        "omp.h": "c"
+    },
+}
