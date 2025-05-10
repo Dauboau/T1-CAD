@@ -1,0 +1,15 @@
+67 1
+49 2
+66 2
+65 3
+
+49 1
+65 1
+50 2
+51 3
+
+Tempo de Leitura das Strings: 0.012 ms
+Tempo de Processamento das Strings: 0.235 ms
+Tempo de Impressão das Strings: 0.089 ms
+Tempo Total: 0.336 ms
+

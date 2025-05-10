@@ -117,6 +117,7 @@ int main(void) {
             printf("%d %d\n", output[i][j].ascii, output[i][j].freq);
         }
     }
+    fflush(stdout);
 
     // --- Fim da Impressão ---
 
@@ -145,7 +146,6 @@ int main(void) {
 Compilar em x86_64 no MacOS:
 clang -arch x86_64 -Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include main2.c -L/usr/local/opt/libomp/lib -lomp -o main2
 
-
 Compilar em arm64 no MacOS:
 clang -arch arm64 -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include main2.c -L/opt/homebrew/opt/libomp/lib -lomp -o main2
 
@@ -153,7 +153,10 @@ Executar com input no terminal:
 ./main
 
 Executar com input no arquivo txt
-./main < entrada.txt
+./main < exemplo-0-entrada.txt
+
+Executar com input no arquivo txt e output em outro arquivo
+./main3 < exemplo-0-entrada.txt > saida.txt
 
 */
 

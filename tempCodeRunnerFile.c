@@ -1,1 +1,1 @@
-arm64
+fflush
