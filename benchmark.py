@@ -12,8 +12,9 @@ for i in range(iterations):
         start = time.time()
         subprocess.run(["./main3"], input=entrada, stdout=outfile)
         end = time.time()
-        execution_times.append(end - start)
-        print(f"benchmark.py: Iteração {i+1}: {end - start:.3f} segundos")
+        elapsed_ms = (end - start) * 1000
+        execution_times.append(elapsed_ms)
+        print(f"benchmark.py: Iteração {i+1}: {elapsed_ms:.2f} ms")
 
-average_time = sum(execution_times) / iterations
-print(f"benchmark.py: Tempo médio de execução: {average_time:.3f} segundos")
+average_time_ms = sum(execution_times) / iterations
+print(f"benchmark.py: Tempo médio de execução: {average_time_ms:.2f} ms")

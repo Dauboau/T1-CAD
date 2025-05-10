@@ -4,7 +4,7 @@
 
 #define VERBOSE 0
 #define DEBUG 0
-#define TIMING 1
+#define TIMING 0
 #define OUTPUT 1
 
 #define N_LINES 1000000
@@ -34,19 +34,19 @@ static int cmp(const void *a, const void *b) {
 
 int main(void) {
 
-    printf("Trabalho 1 - CAD\n");
-    printf("Threads disponíveis: %d\n", omp_get_num_procs());
+    //printf("Trabalho 1 - CAD\n");
+    //printf("Threads disponíveis: %d\n", omp_get_num_procs());
 
     s1 = omp_get_wtime();
     #pragma omp parallel 
     {
 
-        printf("Thread(%d) criada\n", omp_get_thread_num());
+        //printf("Thread(%d) criada\n", omp_get_thread_num());
 
         #pragma omp single
         {
 
-            printf("Thread(%d) criando Tasks\n", omp_get_thread_num());
+            //printf("Thread(%d) criando Tasks\n", omp_get_thread_num());
 
             s3 = omp_get_wtime();
 
