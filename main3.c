@@ -2,10 +2,8 @@
 #include <string.h>
 #include <omp.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #define BENCHMARK 1
-#define BENCHMARK_ITERATIONS 10
-unsigned int iterations_counter = 0; 
 
 #define N_LINES 1100000
 #define MAX_LINE_LENGTH 1000
@@ -36,108 +34,105 @@ static int cmp(const void *a, const void *b) {
 
 int main(void) {
 
-    do{
+    if(BENCHMARK){
+        tempo_leitura_ini += omp_get_wtime();
+    }
 
-        if(BENCHMARK){
-            tempo_leitura_ini += omp_get_wtime();
-        }
+    // --- Início da Leitura da entrada ---
 
-        // --- Início da Leitura da entrada ---
+    unsigned int inputN = 0;
+    while (fgets(input[inputN], MAX_LINE_LENGTH, stdin) != NULL) {
+        inputN++;
+    }
+    nLines = inputN;
 
-        unsigned int inputN = 0;
-        while (fgets(input[inputN], MAX_LINE_LENGTH, stdin) != NULL) {
-            inputN++;
-        }
-        nLines = inputN;
+    // --- Fim da Leitura da entrada ---
 
-        // --- Fim da Leitura da entrada ---
+    if(BENCHMARK){
+        tempo_leitura_fim += omp_get_wtime();
+        tempo_processamento_ini += omp_get_wtime();
+    }
 
-        if(BENCHMARK){
-            tempo_leitura_fim += omp_get_wtime();
-            tempo_processamento_ini += omp_get_wtime();
-        }
+    // --- Início do Processamento ---
 
-        // --- Início do Processamento ---
+    #pragma omp parallel
+    {
 
-        #pragma omp parallel 
-        {
-
+        if(DEBUG){
             printf("Thread(%d) criada\n", omp_get_thread_num());
+        }
 
-            #pragma omp for schedule(auto)
-            for(unsigned int i = 0; i < nLines; i++){
+        #pragma omp for schedule(auto)
+        for(unsigned int i = 0; i < nLines; i++){
 
-                if(DEBUG){
-                    printf("Thread(%d) Processando String %d\n", omp_get_thread_num(), i);
-                }
-
-                // Remove o '\n' se presente
-                unsigned int len = strlen(input[i]);
-                if (len > 0 && input[i][len - 1] == '\n') {
-                    input[i][len - 1] = '\0';
-                }
-
-                // Contagem de frequências
-                unsigned int charFreq[96] = {0};
-                for (unsigned int j = 0; j < len; j++) {
-                    charFreq[input[i][j] - 32]++;
-                }
-
-                // Preenche a estrutura de saída só com os caracteres que aparecem
-                // Não utiliza SIMD pois não há ganho de performance (não é um loop longo)
-                nChars[i] = 0;
-                for (unsigned int k = 0; k < 96; k++) {
-                    if (charFreq[k] > 0) {
-                        output[i][nChars[i]].ascii = k + 32;
-                        output[i][nChars[i]].freq = charFreq[k];
-                        nChars[i]++;
-                    }
-                }
-
-                // Ordena os caracteres por frequência
-                // e, em caso de empate, pela ordem da tabela ASCII
-                qsort(output[i], nChars[i], sizeof(CodeFreq), cmp);
-
+            if(DEBUG){
+                printf("Thread(%d) Processando String %d\n", omp_get_thread_num(), i);
             }
 
-        }
-
-        // --- Fim do Processamento ---
-
-        if(BENCHMARK){
-            tempo_processamento_fim += omp_get_wtime();
-            tempo_impressao_ini += omp_get_wtime();
-        }
-        
-        // --- Início da Impressão ---
-
-        for(int i = 0; i < nLines; i++) {
-            if(i>0){
-                printf("\n");
+            // Remove o '\n' se presente
+            unsigned int len = strlen(input[i]);
+            if (len > 0 && input[i][len - 1] == '\n') {
+                input[i][len - 1] = '\0';
             }
-            for (int j = 0; j < nChars[i]; j++) {
-                printf("%d %d\n", output[i][j].ascii, output[i][j].freq);
+
+            // Contagem de frequências
+            unsigned int charFreq[96] = {0};
+            for (unsigned int j = 0; j < len; j++) {
+                charFreq[input[i][j] - 32]++;
             }
+
+            // Preenche a estrutura de saída só com os caracteres que aparecem
+            // Não utiliza SIMD pois não há ganho de performance (não é um loop longo)
+            nChars[i] = 0;
+            for (unsigned int k = 0; k < 96; k++) {
+                if (charFreq[k] > 0) {
+                    output[i][nChars[i]].ascii = k + 32;
+                    output[i][nChars[i]].freq = charFreq[k];
+                    nChars[i]++;
+                }
+            }
+
+            // Ordena os caracteres por frequência
+            // e, em caso de empate, pela ordem da tabela ASCII
+            qsort(output[i], nChars[i], sizeof(CodeFreq), cmp);
+
         }
 
-        // --- Fim da Impressão ---
+    }
 
-        if(BENCHMARK){
-            tempo_impressao_fim += omp_get_wtime();
+    // --- Fim do Processamento ---
+
+    if(BENCHMARK){
+        tempo_processamento_fim += omp_get_wtime();
+        tempo_impressao_ini += omp_get_wtime();
+    }
+    
+    // --- Início da Impressão ---
+
+    for(int i = 0; i < nLines; i++) {
+        if(i>0){
+            printf("\n");
         }
+        for (int j = 0; j < nChars[i]; j++) {
+            printf("%d %d\n", output[i][j].ascii, output[i][j].freq);
+        }
+    }
 
-        iterations_counter++;
-    }while(iterations_counter <= 10);
+    // --- Fim da Impressão ---
+
+    if(BENCHMARK){
+        tempo_impressao_fim += omp_get_wtime();
+    }
 
     if(BENCHMARK){
         tempo_leitura_tot = (tempo_leitura_fim - tempo_leitura_ini) * 1000;
         tempo_processamento_tot = (tempo_processamento_fim - tempo_processamento_ini) * 1000;
         tempo_impressao_tot = (tempo_impressao_fim - tempo_impressao_ini) * 1000;
         printf("\n");
-        printf("Tempo de Leitura das Strings Médio: %.3f ms\n", tempo_leitura_tot / BENCHMARK_ITERATIONS);
-        printf("Tempo de Processamento das Strings Médio: %.3f ms\n", tempo_processamento_tot / BENCHMARK_ITERATIONS);
-        printf("Tempo de Impressão das Strings Médio: %.3f ms\n", tempo_impressao_tot / BENCHMARK_ITERATIONS);
-        printf("Tempo Total Médio: %.3f ms\n", (tempo_leitura_tot + tempo_processamento_tot + tempo_impressao_tot) / BENCHMARK_ITERATIONS);
+        printf("Tempo de Leitura das Strings: %.3f ms\n", tempo_leitura_tot);
+        printf("Tempo de Processamento das Strings: %.3f ms\n", tempo_processamento_tot);
+        printf("Tempo de Impressão das Strings: %.3f ms\n", tempo_impressao_tot);
+        printf("Tempo Total: %.3f ms\n", tempo_leitura_tot + tempo_processamento_tot + tempo_impressao_tot);
         printf("\n");
     }
 
