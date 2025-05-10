@@ -159,20 +159,3 @@ Executar com input no arquivo txt e output em outro arquivo
 ./main3 < exemplo-0-entrada.txt > saida.txt
 
 */
-
-/*
-entrada4.txt
-Tempo de Leitura das Strings: 477.500 ms
-Tempo de Processamento das Strings: 906.577 ms
-Tempo de Impressão das Strings: 79641.705 ms
-Tempo Total: 81025.782 ms
-*/
-
-/*
-entrada4.txt
-Obs: Sem output
-Tempo de Leitura das Strings: 410.950 ms
-Tempo de Processamento das Strings: 804.545 ms
-Tempo de Impressão das Strings: 0.000 ms
-Tempo Total: 1215.495 ms
-*/
