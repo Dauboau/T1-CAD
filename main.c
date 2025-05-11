@@ -82,7 +82,7 @@ int main(void) {
     // --- Início da Leitura da entrada ---
 
     char buffer[MAX_LINE_LENGTH];
-    unsigned int inputN = 0;
+    unsigned int inputLine = 0;
     unsigned int inputCap = INITIAL_N_LINES;
     input = malloc(inputCap * sizeof(char*));
     if (input == NULL) {
@@ -91,7 +91,7 @@ int main(void) {
     }
 
     while (fgets(buffer, MAX_LINE_LENGTH, stdin) != NULL) {
-        if (inputN >= inputCap) {
+        if (inputLine >= inputCap) {
             inputCap *= 2; // dobra a capacidade
             char **tmp = realloc(input, inputCap * sizeof(char*));
             if (tmp == NULL) {
@@ -102,15 +102,15 @@ int main(void) {
         }
 
         int len = strlen(buffer);
-        input[inputN] = malloc((len + 1) * sizeof(char));
-        if (input[inputN] == NULL) {
-            fprintf(stderr, "Erro ao alocar memória para linha %d\n", inputN);
+        input[inputLine] = malloc((len + 1) * sizeof(char));
+        if (input[inputLine] == NULL) {
+            fprintf(stderr, "Erro ao alocar memória para linha %d\n", inputLine);
             exit(1);
         }
-        strcpy(input[inputN], buffer);
-        inputN++;
+        strcpy(input[inputLine], buffer);
+        inputLine++;
     }
-    nLines = inputN;
+    nLines = inputLine;
 
     output = malloc(nLines * sizeof(CodeFreq*));
     for(int i = 0; i < nLines; i++) {
