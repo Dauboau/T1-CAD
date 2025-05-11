@@ -159,7 +159,7 @@ int main(void) {
             }
 
             // Preenche a estrutura de saída só com os caracteres que aparecem
-            // Aqui se ordena pela ordem da tabela ASCII
+            // Aqui se insere ordenado pela ordem da tabela ASCII
             nChars[i] = 0;
             for (unsigned int k = 0; k < 96; k++) {
                 if (charFreq[k] > 0) {
