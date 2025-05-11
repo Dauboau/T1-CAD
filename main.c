@@ -32,17 +32,6 @@ double tempo_leitura_ini, tempo_processamento_ini, tempo_impressao_ini = 0;
 double tempo_leitura_fim, tempo_processamento_fim, tempo_impressao_fim = 0;
 double tempo_leitura_tot, tempo_processamento_tot, tempo_impressao_tot = 0;
 
-// Função para encontrar o maior número
-int getMax(CodeFreq arr[], int n) {
-    int max = arr[0].freq;
-    for (int i = 1; i < n; i++) {
-        if (arr[i].freq > max) {
-            max = arr[i].freq;
-        }
-    }
-    return max;
-}
-
 // Função para contar as ocorrências de cada dígito
 void countSort(CodeFreq arr[], int n, int exp) {
     CodeFreq arrAux[n];  // Vetor auxiliar
@@ -71,10 +60,7 @@ void countSort(CodeFreq arr[], int n, int exp) {
 }
 
 // Radix Sort
-void radixSort(CodeFreq arr[], unsigned int n) {
-    // Encontrar o maior valor
-    int max = getMax(arr, n);
-
+void radixSort(CodeFreq arr[], unsigned int n, unsigned int max) {
     // Realizar countSort para cada dígito
     for (int exp = 1; max / exp > 0; exp *= 10) {
         countSort(arr, n, exp);
@@ -168,18 +154,22 @@ int main(void) {
 
             // Preenche a estrutura de saída só com os caracteres que aparecem
             // Aqui se insere ordenado pela ordem da tabela ASCII
+            unsigned int max = 0;
             nChars[i] = 0;
             for (unsigned int k = 0; k < 96; k++) {
                 if (charFreq[k] > 0) {
                     output[i][nChars[i]].ascii = k + 32;
                     output[i][nChars[i]].freq = charFreq[k];
                     nChars[i]++;
+                    if (charFreq[k] > max) {
+                        max = charFreq[k];
+                    }
                 }
             }
 
             // Aqui se ordena pela frequência dos caracteres
             // Utilizando o radix sort
-            radixSort(output[i], nChars[i]);
+            radixSort(output[i], nChars[i], max);
 
         }
 
