@@ -1,3 +1,11 @@
+/*
+Integrantes:
+- Arthur Breno dos Reis Paula 12547382
+- Daniel Contente Romanzini 12547614
+- Gabriel Henrique Brioto 12547764
+- Guilherme Chiarotto de Moraes 12745229
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <omp.h>
