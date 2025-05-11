@@ -10,7 +10,7 @@ with open("exemplo-3-entrada.txt", "rb") as file:
 for i in range(iterations):
     with open("saida.txt", "wb") as outfile:
         start = time.time()
-        subprocess.run(["./main3"], input=entrada, stdout=outfile)
+        subprocess.run(["./main"], input=entrada, stdout=outfile)
         end = time.time()
         elapsed_ms = (end - start) * 1000
         execution_times.append(elapsed_ms)
