@@ -5,32 +5,24 @@
 #define DEBUG 0
 #define BENCHMARK 0
 
-#define N_LINES 1100000
-#define MAX_LINE_LENGTH 1000
+#define INITIAL_N_LINES 1100000 // Número inicial de linhas para fins de alocação
+#define MAX_LINE_LENGTH 1000 // Comprimento máximo de cada linha
 
-unsigned int nLines;
+unsigned int nLines; // Número de linhas do input
 
 typedef struct {
     unsigned int ascii; // Código ASCII
     unsigned int freq; // Frequência do Caractere
 } CodeFreq;
 
-char **input;
-CodeFreq **output;
-unsigned int *nChars;
+char **input; // Array de input
+CodeFreq **output; // Array de output
+unsigned int *nChars; // Número de caracteres únicos por linha
 
+// Variáveis para fins de benchmark
 double tempo_leitura_ini, tempo_processamento_ini, tempo_impressao_ini = 0;
 double tempo_leitura_fim, tempo_processamento_fim, tempo_impressao_fim = 0;
 double tempo_leitura_tot, tempo_processamento_tot, tempo_impressao_tot = 0;
-
-// Função de comparação entre os elementos de CodeFreq
-static int cmp(const void *a, const void *b) {
-    CodeFreq *c1 = (CodeFreq *)a;
-    CodeFreq *c2 = (CodeFreq *)b;
-    if(c1->freq != c2->freq)
-        return c1->freq - c2->freq;
-    return c1->ascii - c2->ascii;
-}
 
 // Função para encontrar o maior número
 int getMax(CodeFreq arr[], int n) {
@@ -45,7 +37,7 @@ int getMax(CodeFreq arr[], int n) {
 
 // Função para contar as ocorrências de cada dígito
 void countSort(CodeFreq arr[], int n, int exp) {
-    CodeFreq output[n];  // Vetor de saída
+    CodeFreq arrAux[n];  // Vetor auxiliar
     int count[10] = {0};
 
     // Contagem de ocorrências
@@ -60,18 +52,18 @@ void countSort(CodeFreq arr[], int n, int exp) {
 
     // Construindo o vetor de saída
     for (int i = n - 1; i >= 0; i--) {
-        output[count[(arr[i].freq / exp) % 10] - 1] = arr[i];
+        arrAux[count[(arr[i].freq / exp) % 10] - 1] = arr[i];
         count[(arr[i].freq / exp) % 10]--;
     }
 
     // Copiando o vetor de saída para o vetor original
     for (int i = 0; i < n; i++) {
-        arr[i] = output[i];
+        arr[i] = arrAux[i];
     }
 }
 
-// Função principal do Radix Sort
-void radixSort(CodeFreq arr[], int n) {
+// Radix Sort
+void radixSort(CodeFreq arr[], unsigned int n) {
     // Encontrar o maior valor
     int max = getMax(arr, n);
 
@@ -79,11 +71,6 @@ void radixSort(CodeFreq arr[], int n) {
     for (int exp = 1; max / exp > 0; exp *= 10) {
         countSort(arr, n, exp);
     }
-}
-
-// Função que usa o Radix Sort
-void sort_all_lines_parallel(CodeFreq output[], unsigned int nChars) {
-    radixSort(output, nChars);
 }
 
 int main(void) {
@@ -96,7 +83,7 @@ int main(void) {
 
     char buffer[MAX_LINE_LENGTH];
     unsigned int inputN = 0;
-    unsigned int inputCap = N_LINES;
+    unsigned int inputCap = INITIAL_N_LINES;
     input = malloc(inputCap * sizeof(char*));
     if (input == NULL) {
         fprintf(stderr, "Erro ao alocar memória inicial para input\n");
@@ -172,6 +159,7 @@ int main(void) {
             }
 
             // Preenche a estrutura de saída só com os caracteres que aparecem
+            // Aqui se ordena pela ordem da tabela ASCII
             nChars[i] = 0;
             for (unsigned int k = 0; k < 96; k++) {
                 if (charFreq[k] > 0) {
@@ -181,9 +169,9 @@ int main(void) {
                 }
             }
 
-            // Ordena os caracteres por frequência
-            // e, em caso de empate, pela ordem da tabela ASCII
-            sort_all_lines_parallel(output[i], nChars[i]);
+            // Aqui se ordena pela frequência dos caracteres
+            // Utilizando o radix sort
+            radixSort(output[i], nChars[i]);
 
         }
 
@@ -199,14 +187,25 @@ int main(void) {
     // --- Início da Impressão ---
 
     for(int i = 0; i < nLines; i++) {
+
         if(i>0){
             printf("\n");
         }
         for (int j = 0; j < nChars[i]; j++) {
             printf("%d %d\n", output[i][j].ascii, output[i][j].freq);
         }
+
+        // Libera a memória alocada para cada linha
+        free(input[i]);
+        free(output[i]);
+
     }
     fflush(stdout);
+
+    // Libera a memória alocada
+    free(input);
+    free(output);
+    free(nChars);
 
     // --- Fim da Impressão ---
 
@@ -233,16 +232,16 @@ int main(void) {
 /*
 
 Compilar em x86_64 no MacOS:
-clang -arch x86_64 -Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include main3.c -L/usr/local/opt/libomp/lib -lomp -o main2
+clang -arch x86_64 -Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include main.c -L/usr/local/opt/libomp/lib -lomp -o main2
 
 Compilar em arm64 no MacOS:
-clang -arch arm64 -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include main3.c -L/opt/homebrew/opt/libomp/lib -lomp -o main2
+clang -arch arm64 -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include main.c -L/opt/homebrew/opt/libomp/lib -lomp -o main2
 
 Compilar em arm64 no MacOS com otimizações:
-clang -arch arm64 -O3 -flto -march=native -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include main3.c -L/opt/homebrew/opt/libomp/lib -lomp -o main3
+clang -arch arm64 -O3 -flto -march=native -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include main.c -L/opt/homebrew/opt/libomp/lib -lomp -o main
 
 Compilar em x86_64 no Windows/Linux:
-gcc -fopenmp main3.c -o main3
+gcc -fopenmp main.c -o main
 
 Executar com input no terminal:
 ./main
@@ -251,6 +250,6 @@ Executar com input no arquivo txt
 ./main < exemplo-0-entrada.txt
 
 Executar com input no arquivo txt e output em outro arquivo
-./main3 < exemplo-0-entrada.txt > saida.txt
+./main < exemplo-0-entrada.txt > saida.txt
 
 */
